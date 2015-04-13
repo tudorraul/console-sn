@@ -1,8 +1,8 @@
 package com.tudor.csn
 
 import akka.actor.ActorSystem
-import akka.testkit.{TestActorRef, TestProbe}
-import com.tudor.csn.Commands.Exit
+import akka.testkit.{TestKit, TestActorRef, TestProbe}
+import com.tudor.csn.Commands._
 import com.tudor.csn.User.Posts
 
 class SocialNetworkMasterSpec(_system: ActorSystem) extends SpecBundle(_system) {
@@ -13,6 +13,9 @@ class SocialNetworkMasterSpec(_system: ActorSystem) extends SpecBundle(_system) 
   val masterRef: TestActorRef[SocialNetworkMaster] = TestActorRef(SocialNetworkMaster.props(probe.ref))
   val master = masterRef.underlyingActor
 
+  override def afterAll() {
+    TestKit.shutdownActorSystem(system)
+  }
 
   "Master" must {
     "display a welcome message" in {
@@ -57,6 +60,45 @@ class SocialNetworkMasterSpec(_system: ActorSystem) extends SpecBundle(_system) 
 
     }
 
+    "allow followers to see all messages from people they follow" in {
+      masterRef ! "Charlie -> I'm in New York today! Anyone want to have a coffee?"
+      masterRef ! "Charlie follows Alice"
+      masterRef ! "Charlie follows Bob"
+      masterRef ! "Charlie wall"
+      probe.expectMsgPF() {
+        case Posts(p, None, true) =>
+          p.size should be(4)
+
+          val p0: Post = p.toList(0)
+          val p1: Post = p.toList(1)
+          val p2: Post = p.toList(2)
+          val p3: Post = p.toList(3)
+
+          p0.username should be("Charlie")
+          p1.username should be("Bob")
+          p2.username should be("Bob")
+          p3.username should be("Alice")
+
+          p0.timestamp should be >= p1.timestamp
+          p1.timestamp should be >= p2.timestamp
+          p2.timestamp should be >= p3.timestamp
+
+          true
+      }
+
+    }
+
+    "followers continue to see all messages from people they follow" in {
+      masterRef ! "Alice -> Sun is up!"
+      masterRef ! "Charlie wall"
+      probe.expectMsgPF() {
+        case Posts(p, None, true) =>
+          p.size should be(5)
+          p.toList.head.username should be("Alice")
+          true
+      }
+    }
+
     "say goodbye before exiting" in {
       masterRef ! Exit
       probe.expectMsgPF() {
@@ -64,5 +106,4 @@ class SocialNetworkMasterSpec(_system: ActorSystem) extends SpecBundle(_system) 
       }
     }
   }
-
 }
