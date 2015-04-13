@@ -2,7 +2,8 @@ package com.tudor.csn
 
 import akka.actor.ActorSystem
 import akka.testkit.{TestActorRef, TestKit}
-import com.tudor.csn.Commands.Post
+import com.tudor.csn.Commands.{ListMessages, Post}
+import com.tudor.csn.User.Posts
 
 class UserSpec(_system: ActorSystem) extends SpecBundle(_system) {
   def this() = this(ActorSystem("UserSpec"))
@@ -28,5 +29,11 @@ class UserSpec(_system: ActorSystem) extends SpecBundle(_system) {
       user.messages.tail.head should be(p2)
       user.messages.tail.tail.head should be(p1)
     }
+
+    "lists all messages posted by self" in {
+      userRef ! ListMessages("user1")
+      expectMsgPF() { case p: Posts => p.posts.size == 2}
+    }
   }
+
 }

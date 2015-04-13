@@ -19,30 +19,22 @@ class CommandParserSpec(_system: ActorSystem) extends SpecBundle(_system) {
       commandParser ! "username"
       expectMsg(ListMessages("username"))
     }
-  }
 
-  it must {
     "parse send message" in {
       commandParser ! "username -> new message here"
       expectMsgPF() { case Post("username", "new message here", _) => true }
     }
-  }
 
-  it must {
     "parse follows" in {
       commandParser ! "username follows friend"
       expectMsg(Follow("username", "friend"))
     }
-  }
 
-  it must {
     "parse wall" in {
       commandParser ! "username wall"
       expectMsg(Wall("username"))
     }
-  }
 
-  it must {
     "parse exit" in {
       commandParser ! "exit"
       expectMsg(Exit)

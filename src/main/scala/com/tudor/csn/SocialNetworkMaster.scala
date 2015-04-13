@@ -23,6 +23,9 @@ class SocialNetworkMaster(viewer: ActorRef) extends Actor with ActorLogging {
 
     case command: UserCommand => findOrCreateUser(command.username) ! command
 
+    case m: User.Posts =>
+      m.forwardToUser.map(findOrCreateUser).map(user => m.posts.foreach(user ! _)).getOrElse(viewer ! m)
+
     case Exit =>
       viewer ! "Bye! [Press ENTER]"
       system.shutdown()
