@@ -8,6 +8,14 @@ class SocialNetworkMaster(viewer: ActorRef) extends Actor with ActorLogging {
 
   val commandParser = system.actorOf(Props[CommandParser], "commandParser")
 
+  var users = Map[String, ActorRef]()
+
+  def findOrCreateUser(username: String) = users.getOrElse(username, {
+    val newUser = system.actorOf(User.props(username), s"user.$username")
+    users += (username -> newUser)
+    newUser
+  })
+
   viewer ! "Welcome to Social Network Demo, type in your commands!\n(type `exit` to exit the demo)"
 
   override def receive: Receive = {
