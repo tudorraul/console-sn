@@ -12,7 +12,7 @@ class SocialNetworkMasterSpec(_system: ActorSystem) extends SpecBundle(_system) 
   val master = masterRef.underlyingActor
 
 
-  it must {
+  "Master" must {
     "create users it does not have" in {
       val username = "Alice"
       master.users.get(username) should be(None)

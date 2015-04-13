@@ -21,6 +21,8 @@ class SocialNetworkMaster(viewer: ActorRef) extends Actor with ActorLogging {
   override def receive: Receive = {
     case line: String => commandParser ! line
 
+    case command: UserCommand => findOrCreateUser(command.username) ! command
+
     case Exit =>
       viewer ! "Bye! [Press ENTER]"
       system.shutdown()
