@@ -5,7 +5,7 @@ import java.util.Comparator
 import java.util.concurrent.atomic.AtomicLong
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.tudor.csn.Commands.{ListMessages, Post}
+import com.tudor.csn.Commands.{ListMessages, Post, Wall}
 import com.tudor.csn.User.Posts
 
 class User(name: String) extends Actor with ActorLogging {
@@ -26,6 +26,9 @@ class User(name: String) extends Actor with ActorLogging {
       case ListMessages(username) =>
         if (username == name)
           sender() ! Posts(messages)
+
+      case Wall(username) =>
+        if (username == name) sender() ! Posts(messages, None, fromWall = true)
     }
   }
 }
