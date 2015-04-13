@@ -4,7 +4,8 @@ import java.util
 import java.util.Comparator
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.tudor.csn.Commands.Post
+import com.tudor.csn.Commands.{ListMessages, Post}
+import com.tudor.csn.User.Posts
 
 class User(name: String) extends Actor with ActorLogging {
 
@@ -18,11 +19,17 @@ class User(name: String) extends Actor with ActorLogging {
     case command: UserCommand => command match {
       case post: Post =>
         storage.put(post.timestamp, post)
+
+      case ListMessages(username) =>
+        if (username == name)
+          sender() ! Posts(messages)
     }
   }
 }
 
 object User {
+
+  case class Posts(posts: TraversableOnce[Post], forwardToUser: Option[String] = None, fromWall: Boolean = false)
 
   object TimestampOrdering extends Comparator[Long] {
     override def compare(x: Long, y: Long): Int = y.compareTo(x)
