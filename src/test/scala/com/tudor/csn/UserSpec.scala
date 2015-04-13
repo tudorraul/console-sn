@@ -34,6 +34,11 @@ class UserSpec(_system: ActorSystem) extends SpecBundle(_system) {
       userRef ! ListMessages("user1")
       expectMsgPF() { case p: Posts => p.posts.size == 2}
     }
+
+    "lists all wall messages" in {
+      userRef ! ListMessages("user1")
+      expectMsgPF() { case p: Posts => p.posts.size == 2}
+    }
   }
 
 }
