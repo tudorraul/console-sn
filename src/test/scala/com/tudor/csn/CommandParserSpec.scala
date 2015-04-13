@@ -1,11 +1,10 @@
 package com.tudor.csn
 
 import akka.actor.{ActorSystem, Props}
-import akka.testkit.{ImplicitSender, TestKit}
+import akka.testkit.TestKit
 import com.tudor.csn.Commands._
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-class CommandParserSpec(_system: ActorSystem) extends TestKit(_system) with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class CommandParserSpec(_system: ActorSystem) extends SpecBundle(_system) {
 
   def this() = this(ActorSystem("CommandParserSpec"))
 
